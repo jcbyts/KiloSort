@@ -5,7 +5,11 @@ fidout      = fopen(fname, 'w');
 %
 clear fs
 for j = 1:ops.Nchan
-   fs{j} = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) ));
+    try
+        fs{j} = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) )); % if separate files are saved by open ephys gui
+    catch
+        fs{j} = dir(fullfile(ops.root, sprintf('*CH%d.continuous',j) )); % if single files are saved
+    end
 end
 nblocks = cellfun(@(x) numel(x), fs);
 if numel(unique(nblocks))>1
