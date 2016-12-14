@@ -1,16 +1,26 @@
 function ops = convertOpenEphysToRawBInary(ops)
 
-fname       = fullfile(ops.root, sprintf('%s.dat', ops.fbinary)); 
+path_to=fileparts(ops.fbinary);
+if isempty(path_to)
+    fname       = fullfile(ops.root, sprintf('%s.dat', ops.fbinary));
+else
+    fname       = ops.fbinary;
+end
 fidout      = fopen(fname, 'w');
 %
 clear fs
-for j = 1:ops.Nchan
-    try
-        fs{j} = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) )); % if separate files are saved by open ephys gui
-    catch
+fl=dir(fullfile(ops.root, '*CH*.continuous'));
+fl_=dir(fullfile(ops.root, '*CH*_*.continuous'));
+if numel(fl_) > numel(fl)
+    for j = 1:ops.Nchan
+            fs{j} = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) )); % if separate files are saved by open ephys gui
+    end
+else
+    for j = 1:ops.Nchan
         fs{j} = dir(fullfile(ops.root, sprintf('*CH%d.continuous',j) )); % if single files are saved
     end
 end
+
 nblocks = cellfun(@(x) numel(x), fs);
 if numel(unique(nblocks))>1
    error('different number of blocks for different channels!') 
