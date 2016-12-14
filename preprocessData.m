@@ -84,6 +84,7 @@ Nbatch_buff = floor(4/5 * nint16s/rez.ops.Nchan /(NT-ops.ntbuff)); % factor of 4
 Nbatch_buff = min(Nbatch_buff, Nbatch);
 
 %% load data into patches, filter, compute covariance
+
 if isfield(ops,'fslow')&&ops.fslow<ops.fs/2
     [b1, a1] = butter(3, [ops.fshigh/ops.fs,ops.fslow/ops.fs]*2, 'bandpass');
 else
@@ -141,10 +142,14 @@ while 1
     dataRAW = single(dataRAW);
     dataRAW = dataRAW(:, chanMapConn);
     
-    datr = filter(b1, a1, dataRAW);
-    datr = flipud(datr);
-    datr = filter(b1, a1, datr);
-    datr = flipud(datr);
+    if ~isfield(ops, 'filteredbinary') || ~ops.filteredbinary
+        datr = filter(b1, a1, dataRAW);
+        datr = flipud(datr);
+        datr = filter(b1, a1, datr);
+        datr = flipud(datr);
+    else
+        datr=dataRAW;
+    end
     
     switch ops.whitening
         case 'noSpikes'
