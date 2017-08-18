@@ -1,13 +1,30 @@
 function makeAtlasChannelMap(fpath)
-% create a channel Map file for simulated data (eMouse)
+% create a channel Map file for 32 Channel Atlas probe
 
 % here I know a priori what order my channels are in.  So I just manually 
 % make a list of channel indices (and give
 % an index to dead channels too). chanMap(1) is the row in the raw binary
 % file for the first channel.
 
+
+
 % the first thing Kilosort does is reorder the data with data = data(chanMap, :).
+
+% 32Chan Atlas Acute with drivemoutn
 chanMap = [5 21 7 23 3 19 12 28 14 30 8 24 6 22 10 26 9 25 4 20 11 27 16 32 13 29 2 18 1 17 15 31];
+
+% 32chan Atlas Chronic ZIF to omnetics
+% chanMap = [9    26     8    24    10    25     6    23    11    27     7    22    12    28     4    21    13    29, ...
+%     5    20    14    30     2    19    15    31     3    18    32    17    16     1];
+chanMap = [8 24 9 25 7 23 10 26 11 27 12 28 5 21 4 20 3 19 2 18 1 6 13 32 14 31 15 30 16 29 17 22];
+
+% El = 1:32;
+% ZIF = [18 38 23 3 17 37 24 4 16 36 25 5 15 35 26 6 14 34 27 7 13 33 28 8 12 32 29 9 30 10 11 31];
+% 
+% Omn = [nan nan  35:-1:20 nan nan nan nan 2:17 nan];
+% intan = [nan 8 6 7 4 5 2 3 32 1 31 30 29 28 27 25 26 nan, ...
+%     nan 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 nan];
+
 
 
 % Now we declare which channels are "connected" in this normal ordering, 

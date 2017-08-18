@@ -9,17 +9,14 @@ end
 fidout      = fopen(fname, 'w');
 %
 clear fs
-fl=dir(fullfile(ops.root, '*CH*.continuous'));
-fl_=dir(fullfile(ops.root, '*CH*_*.continuous'));
-if numel(fl_) > numel(fl)
-    for j = 1:ops.Nchan
-            fs{j} = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) )); % if separate files are saved by open ephys gui
-    end
-else
-    for j = 1:ops.Nchan
-        fs{j} = dir(fullfile(ops.root, sprintf('*CH%d.continuous',j) )); % if single files are saved
-    end
+
+for j = 1:ops.Nchan
+    tmp = dir(fullfile(ops.root, sprintf('*CH%d.continuous',j) ));
+    tmp_ = dir(fullfile(ops.root, sprintf('*CH%d_*.continuous', j) )); % if separate files are saved by open ephys gui
+    
+    fs{j} = [tmp tmp_];
 end
+
 
 nblocks = cellfun(@(x) numel(x), fs);
 if numel(unique(nblocks))>1

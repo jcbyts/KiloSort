@@ -16,7 +16,7 @@ Nfilt 	= ops.Nfilt; %256+128;
 ntbuff  = ops.ntbuff;
 NT  	= ops.NT;
 
-Nrank   = ops.Nrank;
+Nrank   = 3;%ops.Nrank;
 Th 		= ops.Th;
 maxFR 	= ops.maxFR;
 
@@ -181,7 +181,11 @@ while (i<=Nbatch * ops.nfullpasses+1)
     
     % move data to GPU and scale it
     if ops.GPU
-        dataRAW = gpuArray(dat);
+        try
+            dataRAW = gpuArray(dat);
+        catch
+            dataRAW = (dat);
+        end
     else
         dataRAW = dat;
     end

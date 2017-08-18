@@ -1,4 +1,4 @@
-function [rez, DATA, uproj] = preprocessData(ops)
+function [rez, DATA, uproj] = preprocessData_jly(ops)
 tic;
 uproj = [];
 ops.nt0 	= getOr(ops, {'nt0'}, 61);
@@ -159,10 +159,8 @@ while 1
     end
     
     % remove artifacts
-	[datr, bad] = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
-    if any(bad)
-        fprintf('found %d artifact samples\n', numel(bad))
-    end
+	datr = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
+        
     
     switch ops.whitening
         case 'noSpikes'

@@ -80,8 +80,9 @@ while 1
     bad(bad>size(datr,1))=[];
     
     datr(bad,:)=0;
-
-    fwrite(fidout, datr', 'int16');
+    
+    samples=gather_try(datr');
+    fwrite(fidout, samples, 'int16');
     
     if ibatch<=Nbatch_buff
         isproc(ibatch) = 1;
