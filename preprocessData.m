@@ -70,14 +70,14 @@ rez.ops.kcoords = kcoords;
 d = dir(ops.fbinary);
 ops.sampsToRead = floor(d.bytes/NchanTOT/2);
 
-if ispc
-    dmem         = memory;
-    memfree      = dmem.MemAvailableAllArrays/8;
-    memallocated = min(ops.ForceMaxRAMforDat, dmem.MemAvailableAllArrays) - memfree;
-    memallocated = max(0, memallocated);
-else
+% if ispc
+%     dmem         = memory;
+%     memfree      = dmem.MemAvailableAllArrays/8;
+%     memallocated = min(ops.ForceMaxRAMforDat, dmem.MemAvailableAllArrays) - memfree;
+%     memallocated = max(0, memallocated);
+% else
     memallocated = ops.ForceMaxRAMforDat;
-end
+% end
 
 nint16s      = memallocated/2;
 
