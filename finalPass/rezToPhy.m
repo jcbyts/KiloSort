@@ -114,7 +114,8 @@ if ~isempty(savePath)
     if ~exist(fullfile(savePath,'params.py'),'file')
         fid = fopen(fullfile(savePath,'params.py'), 'w');
         
-        [~, fname, ext] = fileparts(rez.ops.fbinary);
+%         [~, fname, ext] = fileparts(rez.ops.fbinary);
+        [~, fname, ext] = fileparts(rez.ops.fproc);
         
         fprintf(fid,['dat_path = ''',fname ext '''\n']);
         fprintf(fid,'n_channels_dat = %i\n',rez.ops.NchanTOT);
@@ -125,7 +126,8 @@ if ~isempty(savePath)
         else
             fprintf(fid,'sample_rate = %i.\n',rez.ops.fs);
         end
-        fprintf(fid,'hp_filtered = False');
+%         fprintf(fid,'hp_filtered = False');
+        fprintf(fid,'hp_filtered = True');
         fclose(fid);
     end
 end

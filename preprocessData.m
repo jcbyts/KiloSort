@@ -3,6 +3,8 @@ tic;
 uproj = [];
 ops.nt0 	= getOr(ops, {'nt0'}, 61);
 
+fname = fullfile(ops.root, 'ephys_info.mat');
+einfo = load(fname);
 
 if strcmp(ops.datatype , 'openEphys')
    ops = convertOpenEphysToRawBInary(ops);  % convert data, only for OpenEphys
@@ -70,14 +72,14 @@ rez.ops.kcoords = kcoords;
 d = dir(ops.fbinary);
 ops.sampsToRead = floor(d.bytes/NchanTOT/2);
 
-% if ispc
-%     dmem         = memory;
-%     memfree      = dmem.MemAvailableAllArrays/8;
-%     memallocated = min(ops.ForceMaxRAMforDat, dmem.MemAvailableAllArrays) - memfree;
-%     memallocated = max(0, memallocated);
-% else
+if ispc
+    dmem         = memory;
+    memfree      = dmem.MemAvailableAllArrays/8;
+    memallocated = min(ops.ForceMaxRAMforDat, dmem.MemAvailableAllArrays) - memfree;
+    memallocated = max(0, memallocated);
+else
     memallocated = ops.ForceMaxRAMforDat;
-% end
+end
 
 nint16s      = memallocated/2;
 
@@ -158,10 +160,24 @@ while 1
         datr=dataRAW;
     end
     
-    % remove artifacts
-	[datr, bad] = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
+    % --- remove artifacts
+    if isfield(einfo, 'artifacts')
+        artifacts = (einfo.artifacts - offset);
+        artifacts = artifacts(artifacts > 0 & artifacts < NTbuff);
+        bad = artifacts;
+        for iChannel = 1:size(datr,2)
+            datr(bad,iChannel) = 0;
+        end
+    end
+    % 	[datr, bad] = preprocess.removeArtifactsEnergy(datr, [], false);
+    [datr, bad] = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
+    
     if any(bad)
         fprintf('found %d artifact samples\n', numel(bad))
+        
+        figure(1); clf
+        plot(datr, 'k')
+        drawnow
     end
     
     switch ops.whitening
@@ -265,9 +281,18 @@ for ibatch = 1:Nbatch
         datr = filter(b1, a1, datr);
         datr = flipud(datr);
         
-        % remove artifacts
-        datr = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
-        
+        % --- remove artifacts
+        if isfield(einfo, 'artifacts')
+            artifacts = (einfo.artifacts - offset);
+            artifacts = artifacts(artifacts > 0 & artifacts < NTbuff);
+            bad = artifacts;
+            for iChannel = 1:size(datr,2)
+                datr(bad,iChannel) = 0;
+            end
+        end
+            % 	[datr, bad] = preprocess.removeArtifactsEnergy(datr, [], false);
+        [datr, ~] = preprocess.removeChannelArtifacts(datr, ops.artifactThresh, ops.artifactNchans, 50);
+
         datr = datr(ioffset + (1:NT),:);
     end
     
@@ -302,6 +327,8 @@ for ibatch = 1:Nbatch
     
     if ibatch<=Nbatch_buff
         DATA(:,:,ibatch) = gather_try(datr);
+%         datcpu = squeeze(int16(DATA(:,:,ibatch)));
+%         fwrite(fidW, datcpu, 'int16');
     else
         datcpu  = gather_try(int16(datr));
         fwrite(fidW, datcpu, 'int16');
@@ -315,8 +342,9 @@ end
 Wrot        = gather_try(Wrot);
 rez.Wrot    = Wrot;
 
-fclose(fidW);
+fclose(fidW); % close writing
 fclose(fid);
+
 if ops.verbose
     fprintf('Time %3.2f. Whitened data written to disk... \n', toc);
     fprintf('Time %3.2f. Preprocessing complete!\n', toc);
